@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/demodb
     username: postgres
-    password: admin
+    password: "@Abhishek11611"
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -10,3 +10,8 @@ spring:
       ddl-auto: validate
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+security:
+  jwt:
+    private-key: ${JWT_PRIVATE_KEY:classpath:private.pem}
+    public-key: ${JWT_PUBLIC_KEY:classpath:public.pem}
