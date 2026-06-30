@@ -18,10 +18,10 @@ import java.util.Base64;
 @Configuration
 public class RsaKeyConfig {
 
-    @Value("${security.jwt.private-key}")
+    @Value("${security.jwt.signing.private-key}")
     private Resource privateKeyResource;
 
-    @Value("${security.jwt.public-key}")
+    @Value("${security.jwt.signing.public-key}")
     private Resource publicKeyResource;
 
     @Bean
