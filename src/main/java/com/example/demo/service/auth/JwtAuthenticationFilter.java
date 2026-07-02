@@ -1,5 +1,6 @@
 package com.example.demo.service.auth;
 
+import com.nimbusds.jwt.JWTClaimsSet;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import jakarta.servlet.FilterChain;
@@ -40,12 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = header.substring(7);
         try {
-            Jws<Claims> jws = jwtService.parseAndValidate(token);
-            Claims claims = jws.getPayload();
-
-            if (!"access".equals(claims.get("type"))) {
-                throw new BadCredentialsException("Invalid token type");
-            }
+            JWTClaimsSet claims = jwtService.parseAndValidate(token);
 
             String username = claims.getSubject();
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);

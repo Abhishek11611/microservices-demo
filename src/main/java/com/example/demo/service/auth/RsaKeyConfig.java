@@ -24,17 +24,43 @@ public class RsaKeyConfig {
     @Value("${security.jwt.signing.public-key}")
     private Resource publicKeyResource;
 
+    @Value("${security.jwt.encryption.private-key}")
+    private Resource encryptionPrivateKeyResource;
+
+    @Value("${security.jwt.encryption.public-key}")
+    private Resource encryptionPublicKeyResource;
+
+    @Bean("jwtSigningPrivateKey")
+    public RSAPrivateKey jwtSigningPrivateKey() throws Exception{
+        return loadPrivateKey(privateKeyResource);
+    }
+
+    @Bean("jwtSigningPublicKey")
+    public RSAPublicKey jwtSigningPublicKey() throws Exception{
+        return loadPublicKey(publicKeyResource);
+    }
+
+    @Bean("jwtEncryptionPrivateKey")
+    public RSAPrivateKey jwtEncryptionPrivateKey() throws Exception{
+        return loadPrivateKey(encryptionPrivateKeyResource);
+    }
+
+    @Bean("jwtEncryptionPublicKey")
+    public RSAPublicKey jwtEncryptionPublicKey() throws Exception{
+        return loadPublicKey(encryptionPublicKeyResource);
+    }
+
     @Bean
-    public RSAPrivateKey jwtPrivateKey() throws Exception {
-        String pem = readPem(privateKeyResource);
+    public RSAPrivateKey loadPrivateKey(Resource resource) throws Exception {
+        String pem = readPem(resource);
         byte[] der = Base64.getDecoder().decode(pem);
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(der);
         return (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(spec);
     }
 
     @Bean
-    public RSAPublicKey jwtPublicKey() throws Exception {
-        String pem = readPem(publicKeyResource);
+    public RSAPublicKey loadPublicKey(Resource resource) throws Exception {
+        String pem = readPem(resource);
         byte[] der = Base64.getDecoder().decode(pem);
         X509EncodedKeySpec spec = new X509EncodedKeySpec(der);
         return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);
