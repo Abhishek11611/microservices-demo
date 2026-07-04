@@ -2,12 +2,11 @@ package com.example.demo.controllers.auth;
 
 import com.example.demo.dtos.BaseAPIResponse;
 import com.example.demo.dtos.authentication.TokenResponseDTO;
-import com.example.demo.service.auth.AuthenticationService;
+import com.example.demo.service.security.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

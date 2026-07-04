@@ -1,4 +1,4 @@
-package com.example.demo.service.auth.onboard;
+package com.example.demo.service.onboard;
 
 public interface UsersRegistrationService {
 }

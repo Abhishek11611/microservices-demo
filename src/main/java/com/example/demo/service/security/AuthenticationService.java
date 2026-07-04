@@ -1,4 +1,4 @@
-package com.example.demo.service.auth;
+package com.example.demo.service.security;
 
 import com.example.demo.dtos.authentication.TokenResponseDTO;
 import com.nimbusds.jose.JOSEException;

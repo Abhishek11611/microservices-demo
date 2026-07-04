@@ -1,6 +1,6 @@
 package com.example.demo.controllers.auth;
 
-import com.example.demo.service.auth.AuthenticationService;
+import com.example.demo.service.security.AuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
