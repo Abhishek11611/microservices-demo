@@ -1,5 +1,6 @@
 package com.example.demo.service.auth;
 
+import com.example.demo.entities.users.Users;
 import com.example.demo.exceptions.TokenGenerationException;
 import com.example.demo.exceptions.UnauthorisedException;
 import com.nimbusds.jose.*;
@@ -20,6 +21,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
@@ -37,18 +39,19 @@ public class JwtService {
         this.signingPublicKey = signingPublicKey;
         this.encryptionPrivateKey = encryptionPrivateKey;
         this.encryptionPublicKey = encryptionPublicKey;
+
     }
 
     private static final String SIGNING_KEY_ID  = "sign-key-2026-1";
     private static final String ENC_KEY_ID = "enc-key-2026-1";
     private static final long ACCESS_TOKEN_TTL_MIN = 15;
 
-    public String generateAccessToken (String userName){
+    public String generateAccessToken (String email, String roles){
 
         try {
-            JWTClaimsSet claims = buildClaims(userName);
+            JWTClaimsSet claims = buildClaims(email,roles);
             SignedJWT signed  = signClaims(claims);
-//            System.out.println(signed.serialize()); here we get Actual Token
+            System.out.println(signed.serialize()); // here we get Actual Token
             return encryptSignedJwt(signed);
         } catch (JOSEException e) {
             throw new TokenGenerationException("Failed to generate access token");
@@ -56,10 +59,12 @@ public class JwtService {
     }
 
 
-    private JWTClaimsSet buildClaims(String userName) {
+    private JWTClaimsSet buildClaims(String email, String roles) {
         Instant now = Instant.now();
+
         return new JWTClaimsSet.Builder()
-                .subject(userName)
+                .subject(email)
+                .claim("roles",roles)
                 .claim("type", "access")
                 .issuer("your-bank-service")
                 .audience("your-bank-clients")
