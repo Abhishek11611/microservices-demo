@@ -1,6 +1,5 @@
-package com.example.demo.service.auth;
+package com.example.demo.service.security;
 
-import com.example.demo.entities.users.Users;
 import com.example.demo.exceptions.TokenGenerationException;
 import com.example.demo.exceptions.UnauthorisedException;
 import com.nimbusds.jose.*;
@@ -21,7 +20,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class JwtService {

@@ -1,11 +1,9 @@
-package com.example.demo.service.auth;
+package com.example.demo.service.security;
 
 import com.example.demo.dtos.authentication.TokenResponseDTO;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
-
-import java.util.stream.Collectors;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
