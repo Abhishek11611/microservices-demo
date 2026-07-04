@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: demo-app:latest
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: demodb
+      DB_USERNAME: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY:-classpath:private.pem}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:-classpath:public.pem}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - backend
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: demodb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d demodb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+volumes:
+  pg_data:
+
+networks:
+  backend:
+    driver: bridge
