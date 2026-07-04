@@ -1,23 +1,23 @@
-package com.example.demo.service.auth;
+package com.example.demo.service.security;
 
 import com.nimbusds.jwt.JWTClaimsSet;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -43,11 +43,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             JWTClaimsSet claims = jwtService.parseAndValidate(token);
 
-            String username = claims.getSubject();
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            String email = claims.getSubject();
+            String rolesClaim = (String) claims.getClaim("roles");
+
+            List<GrantedAuthority> authorities =
+                    Arrays.stream(rolesClaim.split(","))
+                            .map(String::trim)
+                            .filter(r -> !r.isBlank())
+                            .map(r -> new SimpleGrantedAuthority("ROLE_" + r))
+                            .map(GrantedAuthority.class::cast)
+                            .toList();
+
+            UserDetailsPrinciple userDetailsPrinciple = new UserDetailsPrinciple.Builder()
+                            .email(email)
+                            .authorities(authorities)
+                            .build();
 
             UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(userDetailsPrinciple, null, userDetailsPrinciple.getAuthorities());
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(auth);
 

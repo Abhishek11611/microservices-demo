@@ -1,4 +1,4 @@
-package com.example.demo.service.auth;
+package com.example.demo.service.security;
 
 import com.example.demo.dtos.authentication.TokenResponseDTO;
 import com.nimbusds.jose.JOSEException;
@@ -16,7 +16,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public TokenResponseDTO verifyUsers(String email, HttpServletRequest servletRequest) throws JOSEException {
-        String accessToken = jwtService.generateAccessToken(email);
+//        String roles = users.getUserRoles().stream()
+//                .map(ur -> ur.getRole().getName())
+//                .collect(Collectors.joining(","));
+        String accessToken = jwtService.generateAccessToken(email,"ADMIN");
         return new TokenResponseDTO(null,accessToken,null,null);
+    }
+
+    @Override
+    public String testAccess(){
+        return "Hi Admin";
     }
 }

@@ -1,4 +1,4 @@
-package com.example.demo.service.auth;
+package com.example.demo.service.security;
 
 import com.example.demo.exceptions.TokenGenerationException;
 import com.example.demo.exceptions.UnauthorisedException;
@@ -11,6 +11,7 @@ import com.nimbusds.jwt.EncryptedJWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.interfaces.RSAPrivateKey;
@@ -37,18 +38,26 @@ public class JwtService {
         this.signingPublicKey = signingPublicKey;
         this.encryptionPrivateKey = encryptionPrivateKey;
         this.encryptionPublicKey = encryptionPublicKey;
+
     }
 
-    private static final String SIGNING_KEY_ID  = "sign-key-2026-1";
-    private static final String ENC_KEY_ID = "enc-key-2026-1";
-    private static final long ACCESS_TOKEN_TTL_MIN = 15;
+    @Value("${security.jwt.signing.key-id}")
+    private String SIGNING_KEY_ID;
+    @Value("${security.jwt.encryption.key-id}")
+    private String ENC_KEY_ID;
+    @Value("${security.jwt.access-token.ttl-minutes}")
+    private long ACCESS_TOKEN_TTL_MIN;
+    @Value("${security.jwt.issuer}")
+    private String issuer;
+    @Value("${security.jwt.audience}")
+    private String audience;
 
-    public String generateAccessToken (String userName){
+    public String generateAccessToken (String email, String roles){
 
         try {
-            JWTClaimsSet claims = buildClaims(userName);
+            JWTClaimsSet claims = buildClaims(email,roles);
             SignedJWT signed  = signClaims(claims);
-//            System.out.println(signed.serialize()); here we get Actual Token
+            System.out.println(signed.serialize()); // here we get Actual Token
             return encryptSignedJwt(signed);
         } catch (JOSEException e) {
             throw new TokenGenerationException("Failed to generate access token");
@@ -56,13 +65,15 @@ public class JwtService {
     }
 
 
-    private JWTClaimsSet buildClaims(String userName) {
+    private JWTClaimsSet buildClaims(String email, String roles) {
         Instant now = Instant.now();
+
         return new JWTClaimsSet.Builder()
-                .subject(userName)
+                .subject(email)
+                .claim("roles",roles)
                 .claim("type", "access")
-                .issuer("your-bank-service")
-                .audience("your-bank-clients")
+                .issuer(issuer)
+                .audience(audience)
                 .issueTime(Date.from(now))
                 .expirationTime(Date.from(now.plus(ACCESS_TOKEN_TTL_MIN, ChronoUnit.MINUTES)))
                 .jwtID(UUID.randomUUID().toString())   // jti — useful for blacklisting
@@ -109,7 +120,7 @@ public class JwtService {
     }
 
     private void validateClaims(JWTClaimsSet claims) {
-        if (!"your-bank-service".equals(claims.getIssuer())) {
+        if (!issuer.equals(claims.getIssuer())) {
             throw new UnauthorisedException("Invalid issuer: " + claims.getIssuer());
         }
         if (claims.getExpirationTime() == null || claims.getExpirationTime().before(new Date())) {
