@@ -7,4 +7,5 @@ import jakarta.servlet.http.HttpServletRequest;
 public interface AuthenticationService {
 
     TokenResponseDTO verifyUsers(String email, HttpServletRequest servletRequest) throws JOSEException;
+    String testAccess();
 }

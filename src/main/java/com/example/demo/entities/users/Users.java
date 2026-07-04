@@ -4,6 +4,8 @@ import com.example.demo.entities.BaseEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.LinkedList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -34,10 +36,13 @@ public class Users extends BaseEntity {
     @Column(name = "date_of_birth",nullable = false)
     private LocalDate dateOfBirth;
 
+    @OneToMany(mappedBy = "users",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private List<UserRoles> userRoles = new LinkedList<>();
+
     public Users() {
     }
 
-    public Users(Long id, String userCode, String firstName, String lastName, String email, String passwordHash, String mobileNumber, LocalDate dateOfBirth) {
+    public Users(Long id, String userCode, String firstName, String lastName, String email, String passwordHash, String mobileNumber, LocalDate dateOfBirth, List<UserRoles> userRoles) {
         this.id = id;
         this.userCode = userCode;
         this.firstName = firstName;
@@ -46,6 +51,7 @@ public class Users extends BaseEntity {
         this.passwordHash = passwordHash;
         this.mobileNumber = mobileNumber;
         this.dateOfBirth = dateOfBirth;
+        this.userRoles = userRoles;
     }
 
     public Long getId() {
@@ -110,5 +116,13 @@ public class Users extends BaseEntity {
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public List<UserRoles> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(List<UserRoles> userRoles) {
+        this.userRoles = userRoles;
     }
 }
