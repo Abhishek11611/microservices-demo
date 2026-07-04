@@ -11,6 +11,7 @@ import com.nimbusds.jwt.EncryptedJWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.interfaces.RSAPrivateKey;
@@ -40,9 +41,16 @@ public class JwtService {
 
     }
 
-    private static final String SIGNING_KEY_ID  = "sign-key-2026-1";
-    private static final String ENC_KEY_ID = "enc-key-2026-1";
-    private static final long ACCESS_TOKEN_TTL_MIN = 15;
+    @Value("${security.jwt.signing.key-id}")
+    private String SIGNING_KEY_ID;
+    @Value("${security.jwt.encryption.key-id}")
+    private String ENC_KEY_ID;
+    @Value("${security.jwt.access-token.ttl-minutes}")
+    private long ACCESS_TOKEN_TTL_MIN;
+    @Value("${security.jwt.issuer}")
+    private String issuer;
+    @Value("${security.jwt.audience}")
+    private String audience;
 
     public String generateAccessToken (String email, String roles){
 
@@ -64,8 +72,8 @@ public class JwtService {
                 .subject(email)
                 .claim("roles",roles)
                 .claim("type", "access")
-                .issuer("your-bank-service")
-                .audience("your-bank-clients")
+                .issuer(issuer)
+                .audience(audience)
                 .issueTime(Date.from(now))
                 .expirationTime(Date.from(now.plus(ACCESS_TOKEN_TTL_MIN, ChronoUnit.MINUTES)))
                 .jwtID(UUID.randomUUID().toString())   // jti — useful for blacklisting
@@ -112,7 +120,7 @@ public class JwtService {
     }
 
     private void validateClaims(JWTClaimsSet claims) {
-        if (!"your-bank-service".equals(claims.getIssuer())) {
+        if (!issuer.equals(claims.getIssuer())) {
             throw new UnauthorisedException("Invalid issuer: " + claims.getIssuer());
         }
         if (claims.getExpirationTime() == null || claims.getExpirationTime().before(new Date())) {
