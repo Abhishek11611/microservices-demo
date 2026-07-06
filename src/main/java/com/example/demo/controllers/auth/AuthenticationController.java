@@ -2,6 +2,9 @@ package com.example.demo.controllers.auth;
 
 import com.example.demo.dtos.BaseAPIResponse;
 import com.example.demo.dtos.authentication.TokenResponseDTO;
+import com.example.demo.dtos.registration.RegistrationPersonalDetailsRequest;
+import com.example.demo.dtos.registration.RegistrationResponse;
+import com.example.demo.service.onboard.UsersRegistrationService;
 import com.example.demo.service.security.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,9 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final UsersRegistrationService usersRegistrationService;
 
-    public AuthenticationController(AuthenticationService authenticationService) {
+    public AuthenticationController(AuthenticationService authenticationService, UsersRegistrationService usersRegistrationService) {
         this.authenticationService = authenticationService;
+        this.usersRegistrationService = usersRegistrationService;
     }
 
     @PostMapping("/verify-users")
@@ -24,6 +29,13 @@ public class AuthenticationController {
         TokenResponseDTO tokenResponseDTO = authenticationService.verifyUsers(email, servletRequest);
         BaseAPIResponse<TokenResponseDTO> response = new BaseAPIResponse<>(tokenResponseDTO,"verified successfully",true);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/register/step-one")
+    public ResponseEntity<BaseAPIResponse<RegistrationResponse>> registrationPersonalDetails(RegistrationPersonalDetailsRequest registrationPersonalDetailsRequest) {
+        RegistrationResponse registrationResponse = usersRegistrationService.registrationPersonalDetails(registrationPersonalDetailsRequest);
+        BaseAPIResponse<RegistrationResponse> response = new BaseAPIResponse<>(registrationResponse,"Personal Information successfully",true);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
 
