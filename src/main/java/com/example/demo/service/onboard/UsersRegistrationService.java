@@ -7,5 +7,7 @@ public interface UsersRegistrationService {
 
     RegistrationResponse registrationPersonalDetails(RegistrationPersonalDetailsRequest registrationPersonalDetailsRequest);
 
+    RegistrationResponse registrationVerifyOtp(RegistrationPersonalDetailsRequest registrationPersonalDetailsRequest);
+
 
 }
