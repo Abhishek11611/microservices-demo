@@ -1,11 +1,13 @@
 package com.example.demo.service.onboard;
 
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.Objects;
 
+@Service
 public class OtpServiceImpl implements OtpService{
 
     private static final Duration OTP_TTL = Duration.ofMinutes(5);
@@ -28,14 +30,23 @@ public class OtpServiceImpl implements OtpService{
     @Override
     public Boolean verifyOtp(String journeyId, String requestOTP) {
 
+       final String key = OTP_KEY_PREFIX + journeyId;
+
         if (requestOTP == null || requestOTP.isEmpty()){
             return false;
         }
-        Object storedOTP = redisTemplate.opsForValue().get(OTP_KEY_PREFIX + journeyId);
+        Object storedOTP = redisTemplate.opsForValue().get(key);
         if (storedOTP == null){
             throw new RuntimeException("Invalid OTP");
         }
 
-        return requestOTP.equals(storedOTP);
+        boolean isValidOTP = requestOTP.equals(storedOTP);
+
+        if (isValidOTP){
+            redisTemplate.delete(key);
+            return true;
+        }
+
+        return false;
     }
 }

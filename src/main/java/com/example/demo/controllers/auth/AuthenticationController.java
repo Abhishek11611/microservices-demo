@@ -2,6 +2,8 @@ package com.example.demo.controllers.auth;
 
 import com.example.demo.dtos.BaseAPIResponse;
 import com.example.demo.dtos.authentication.TokenResponseDTO;
+import com.example.demo.dtos.registration.PasswordRequest;
+import com.example.demo.dtos.registration.RegistrationOTPRequest;
 import com.example.demo.dtos.registration.RegistrationPersonalDetailsRequest;
 import com.example.demo.dtos.registration.RegistrationResponse;
 import com.example.demo.service.onboard.UsersRegistrationService;
@@ -13,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/authentication")
+@RequestMapping("/api/v1/registrations")
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
@@ -31,10 +33,24 @@ public class AuthenticationController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/register/step-one")
+    @PostMapping("/personal-details")
     public ResponseEntity<BaseAPIResponse<RegistrationResponse>> registrationPersonalDetails(RegistrationPersonalDetailsRequest registrationPersonalDetailsRequest) {
         RegistrationResponse registrationResponse = usersRegistrationService.registrationPersonalDetails(registrationPersonalDetailsRequest);
         BaseAPIResponse<RegistrationResponse> response = new BaseAPIResponse<>(registrationResponse,"Personal Information successfully",true);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<BaseAPIResponse<RegistrationResponse>> registrationVerifyOTP(RegistrationOTPRequest registrationOTPRequest) {
+        RegistrationResponse registrationResponse = usersRegistrationService.registrationVerifyOtp(registrationOTPRequest);
+        BaseAPIResponse<RegistrationResponse> response = new BaseAPIResponse<>(registrationResponse,"verify OTP successfully",true);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/password")
+    public ResponseEntity<BaseAPIResponse<RegistrationResponse>> registrationPassword(PasswordRequest passwordRequest) {
+        RegistrationResponse registrationResponse = usersRegistrationService.registrationPassword(passwordRequest);
+        BaseAPIResponse<RegistrationResponse> response = new BaseAPIResponse<>(registrationResponse,"Password Created successfully",true);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

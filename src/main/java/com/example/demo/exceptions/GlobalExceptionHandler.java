@@ -24,4 +24,20 @@ public class GlobalExceptionHandler {
         EmptyAPIResponse response = new EmptyAPIResponse(message, false);
         return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<EmptyAPIResponse> handleBadRequestException(BadRequestException e) {
+        System.out.println(e.getMessage());
+        String message = e.getMessage();
+        EmptyAPIResponse response = new EmptyAPIResponse(message, false);
+        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<EmptyAPIResponse> handleNotFoundException(NotFoundException e) {
+        System.out.println(e.getMessage());
+        String message = e.getMessage();
+        EmptyAPIResponse response = new EmptyAPIResponse(message, false);
+        return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+    }
 }
