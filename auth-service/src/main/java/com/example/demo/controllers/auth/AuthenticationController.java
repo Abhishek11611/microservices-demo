@@ -9,6 +9,7 @@ import com.example.demo.dtos.registration.RegistrationResponse;
 import com.example.demo.service.onboard.UsersRegistrationService;
 import com.example.demo.service.onboard.UsersRegistrationServiceImpl;
 import com.example.demo.service.security.AuthenticationService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -49,7 +50,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/password")
-    public ResponseEntity<BaseAPIResponse<RegistrationResponse>> registrationPassword(PasswordRequest passwordRequest) {
+    public ResponseEntity<BaseAPIResponse<RegistrationResponse>> registrationPassword(PasswordRequest passwordRequest) throws JsonProcessingException {
         RegistrationResponse registrationResponse = usersRegistrationService.registrationPassword(passwordRequest);
         BaseAPIResponse<RegistrationResponse> response = new BaseAPIResponse<>(registrationResponse,"Password Created successfully",true);
         return new ResponseEntity<>(response, HttpStatus.CREATED);

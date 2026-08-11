@@ -1,5 +1,4 @@
-package com.example.demo.service.security;
-
+package com.example.userservice.service.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,22 +17,11 @@ import java.util.Base64;
 @Configuration
 public class RsaKeyConfig {
 
-    @Value("${security.jwt.signing.private-key}")
-    private Resource privateKeyResource;
-
     @Value("${security.jwt.signing.public-key}")
     private Resource publicKeyResource;
 
     @Value("${security.jwt.encryption.private-key}")
     private Resource encryptionPrivateKeyResource;
-
-    @Value("${security.jwt.encryption.public-key}")
-    private Resource encryptionPublicKeyResource;
-
-    @Bean("jwtSigningPrivateKey")
-    public RSAPrivateKey jwtSigningPrivateKey() throws Exception{
-        return loadPrivateKey(privateKeyResource);
-    }
 
     @Bean("jwtSigningPublicKey")
     public RSAPublicKey jwtSigningPublicKey() throws Exception{
@@ -43,11 +31,6 @@ public class RsaKeyConfig {
     @Bean("jwtEncryptionPrivateKey")
     public RSAPrivateKey jwtEncryptionPrivateKey() throws Exception{
         return loadPrivateKey(encryptionPrivateKeyResource);
-    }
-
-    @Bean("jwtEncryptionPublicKey")
-    public RSAPublicKey jwtEncryptionPublicKey() throws Exception{
-        return loadPublicKey(encryptionPublicKeyResource);
     }
 
     public RSAPrivateKey loadPrivateKey(Resource resource) throws Exception {

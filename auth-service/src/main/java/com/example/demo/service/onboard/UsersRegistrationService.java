@@ -4,6 +4,7 @@ import com.example.demo.dtos.registration.PasswordRequest;
 import com.example.demo.dtos.registration.RegistrationOTPRequest;
 import com.example.demo.dtos.registration.RegistrationPersonalDetailsRequest;
 import com.example.demo.dtos.registration.RegistrationResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 public interface UsersRegistrationService {
 
@@ -11,7 +12,7 @@ public interface UsersRegistrationService {
 
     RegistrationResponse registrationVerifyOtp(RegistrationOTPRequest registrationOTPRequest);
 
-    RegistrationResponse registrationPassword(PasswordRequest passwordRequest);
+    RegistrationResponse registrationPassword(PasswordRequest passwordRequest) throws JsonProcessingException;
 
 
 }

@@ -5,13 +5,17 @@ import com.example.commoncore.exception.NotFoundException;
 import com.example.demo.dtos.registration.*;
 import com.example.demo.enums.RegistrationStatus;
 import com.example.demo.repositories.UsersRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -19,15 +23,19 @@ public class UsersRegistrationServiceImpl implements UsersRegistrationService{
 
     private static final Duration REGISTRATION_TTL = Duration.ofMinutes(10);
     private static final String REGISTRATION_KEY_PREFIX = "registration:";
+    private static final String TOPIC = "user-registration";
 
     private final RedisTemplate<String,Object> redisTemplate;
+    private final KafkaTemplate <String,Object> kafkaTemplate;
+
     private final OtpService otpService;
     private final ObjectMapper objectMapper;
     private final PasswordEncoder passwordEncoder;
     private final UsersRepository usersRepository;
 
-    public UsersRegistrationServiceImpl(RedisTemplate<String, Object> redisTemplate, OtpService otpService, ObjectMapper objectMapper, PasswordEncoder passwordEncoder, UsersRepository usersRepository) {
+    public UsersRegistrationServiceImpl(RedisTemplate<String, Object> redisTemplate, KafkaTemplate<String, Object> kafkaTemplate, OtpService otpService, ObjectMapper objectMapper, PasswordEncoder passwordEncoder, UsersRepository usersRepository) {
         this.redisTemplate = redisTemplate;
+        this.kafkaTemplate = kafkaTemplate;
         this.otpService = otpService;
         this.objectMapper = objectMapper;
         this.passwordEncoder = passwordEncoder;
@@ -114,7 +122,7 @@ public class UsersRegistrationServiceImpl implements UsersRegistrationService{
     }
 
     @Override
-    public RegistrationResponse registrationPassword(PasswordRequest passwordRequest) {
+    public RegistrationResponse registrationPassword(PasswordRequest passwordRequest) throws JsonProcessingException {
 
         if (!passwordRequest.password().equals(passwordRequest.confirmPassword())){
             throw new BadRequestException("Passwords do not match");
@@ -142,6 +150,21 @@ public class UsersRegistrationServiceImpl implements UsersRegistrationService{
         Long ttlExpire = redisTemplate.getExpire(REGISTRATION_KEY_PREFIX+registrationDTO.getJourneyId(), TimeUnit.SECONDS);
 
         redisTemplate.opsForValue().set(REGISTRATION_KEY_PREFIX+passwordRequest.journeyId(),registrationDTO,ttlExpire,TimeUnit.SECONDS);
+
+        String json = objectMapper.writeValueAsString(registrationDTO);
+
+        CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(TOPIC, json);
+
+        future.whenComplete((result, exception) -> {
+            if (exception != null) {
+                System.out.println("Kafka send failed: " + exception.getMessage());
+            } else {
+                System.out.println(
+                        "Kafka message sent to partition: "
+                                + result.getRecordMetadata().partition()
+                );
+            }
+        });
 
         return new RegistrationResponse(registrationDTO.getJourneyId(),RegistrationStatus.PASSWORD_SET);
     }
