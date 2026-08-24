@@ -4,7 +4,7 @@ import com.example.commoncore.exception.BadRequestException;
 import com.example.commoncore.exception.NotFoundException;
 import com.example.demo.dtos.registration.*;
 import com.example.demo.enums.RegistrationStatus;
-import com.example.demo.repositories.UsersRepository;
+import com.example.demo.repositories.AuthUsersRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -31,15 +31,17 @@ public class UsersRegistrationServiceImpl implements UsersRegistrationService{
     private final OtpService otpService;
     private final ObjectMapper objectMapper;
     private final PasswordEncoder passwordEncoder;
-    private final UsersRepository usersRepository;
+    private final AuthUsersRepository authUsersRepository;
+    private final UserRegistrationPersistenceServiceImpl userRegistrationPersistenceService;
 
-    public UsersRegistrationServiceImpl(RedisTemplate<String, Object> redisTemplate, KafkaTemplate<String, Object> kafkaTemplate, OtpService otpService, ObjectMapper objectMapper, PasswordEncoder passwordEncoder, UsersRepository usersRepository) {
+    public UsersRegistrationServiceImpl(RedisTemplate<String, Object> redisTemplate, KafkaTemplate<String, Object> kafkaTemplate, OtpService otpService, ObjectMapper objectMapper, PasswordEncoder passwordEncoder, AuthUsersRepository authUsersRepository, UserRegistrationPersistenceServiceImpl userRegistrationPersistenceService) {
         this.redisTemplate = redisTemplate;
         this.kafkaTemplate = kafkaTemplate;
         this.otpService = otpService;
         this.objectMapper = objectMapper;
         this.passwordEncoder = passwordEncoder;
-        this.usersRepository = usersRepository;
+        this.authUsersRepository = authUsersRepository;
+        this.userRegistrationPersistenceService = userRegistrationPersistenceService;
     }
 
     @Override
@@ -48,15 +50,15 @@ public class UsersRegistrationServiceImpl implements UsersRegistrationService{
         String journeyID = UUID.randomUUID().toString();
         String userCode = "U" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
 
-       if(usersRepository.existsByUserCode(userCode)){
+       if(authUsersRepository.existsByUserCode(userCode)){
            throw new BadRequestException("UserCode already exists Please Try Again.");
        }
 
-        if(usersRepository.existsByEmail(registrationRequest.email())){
+        if(authUsersRepository.existsByEmail(registrationRequest.email())){
             throw new BadRequestException("Email already exists.");
         }
 
-        if(usersRepository.existsByMobileNumber(registrationRequest.mobileNumber())){
+        if(authUsersRepository.existsByMobileNumber(registrationRequest.mobileNumber())){
             throw new BadRequestException("Mobile Number already exists.");
         }
 
@@ -108,11 +110,11 @@ public class UsersRegistrationServiceImpl implements UsersRegistrationService{
             throw new BadRequestException("Please complete your personal information before verifying your OTP.");
         }
 
-        Boolean isOTPVerified = otpService.verifyOtp(registrationOTPRequest.journeyId(), registrationOTPRequest.otp());
-
-        if (!Boolean.TRUE.equals(isOTPVerified)) {
-            throw new BadRequestException("The OTP you entered is invalid or has expired.");
-        }
+//        Boolean isOTPVerified = otpService.verifyOtp(registrationOTPRequest.journeyId(), registrationOTPRequest.otp());
+//
+//        if (!Boolean.TRUE.equals(isOTPVerified)) {
+//            throw new BadRequestException("The OTP you entered is invalid or has expired.");
+//        }
 
         registrationDTO.setStatus(RegistrationStatus.OTP_VERIFIED);
 
@@ -147,27 +149,30 @@ public class UsersRegistrationServiceImpl implements UsersRegistrationService{
         registrationDTO.setPasswordHash(encodePassword);
         registrationDTO.setStatus(RegistrationStatus.PASSWORD_SET);
 
-        Long ttlExpire = redisTemplate.getExpire(REGISTRATION_KEY_PREFIX+registrationDTO.getJourneyId(), TimeUnit.SECONDS);
+        userRegistrationPersistenceService.saveAuthUserWithEvent(registrationDTO);
 
-        redisTemplate.opsForValue().set(REGISTRATION_KEY_PREFIX+passwordRequest.journeyId(),registrationDTO,ttlExpire,TimeUnit.SECONDS);
-
-        String json = objectMapper.writeValueAsString(registrationDTO);
-
-        CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(TOPIC, json);
-
-        future.whenComplete((result, exception) -> {
-            if (exception != null) {
-                System.out.println("Kafka send failed: " + exception.getMessage());
-            } else {
-                System.out.println(
-                        "Kafka message sent to partition: "
-                                + result.getRecordMetadata().partition()
-                );
-            }
-        });
+//        Long ttlExpire = redisTemplate.getExpire(REGISTRATION_KEY_PREFIX+registrationDTO.getJourneyId(), TimeUnit.SECONDS);
+//
+//        redisTemplate.opsForValue().set(REGISTRATION_KEY_PREFIX+passwordRequest.journeyId(),registrationDTO,ttlExpire,TimeUnit.SECONDS);
+//
+//        String json = objectMapper.writeValueAsString(registrationDTO);
+//
+//        CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(TOPIC,registrationDTO.getUserCode(),json);
+//
+//        future.whenComplete((result, exception) -> {
+//            if (exception != null) {
+//                System.out.println("Kafka send failed: " + exception.getMessage());
+//            } else {
+//                System.out.println(
+//                        "Kafka message sent to partition: "
+//                                + result.getRecordMetadata().partition()
+//                );
+//            }
+//        });
 
         return new RegistrationResponse(registrationDTO.getJourneyId(),RegistrationStatus.PASSWORD_SET);
     }
+
 
 
 }

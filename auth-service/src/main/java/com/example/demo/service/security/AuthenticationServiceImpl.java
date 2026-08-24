@@ -1,5 +1,7 @@
 package com.example.demo.service.security;
 
+import com.example.demo.dtos.authentication.SendOTPDTO;
+import com.example.demo.dtos.authentication.SendOTPResponseDTO;
 import com.example.demo.dtos.authentication.TokenResponseDTO;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +14,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     public AuthenticationServiceImpl(JwtService jwtService) {
         this.jwtService = jwtService;
+    }
+
+    @Override
+    public SendOTPResponseDTO sendOtp(SendOTPDTO sendOTPDTO) {
+        return null;
     }
 
     @Override

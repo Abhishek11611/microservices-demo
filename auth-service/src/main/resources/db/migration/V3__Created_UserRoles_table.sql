@@ -8,7 +8,7 @@ CREATE TABLE user_roles(
           status          CHAR(1) DEFAULT 'Y',
           deleted_at      TIMESTAMP WITHOUT TIME ZONE,
 
-          CONSTRAINT fk_users FOREIGN KEY (user_id) REFERENCES users(id),
+          CONSTRAINT fk_users FOREIGN KEY (user_id) REFERENCES auth_user(id),
           CONSTRAINT fk_user_roles FOREIGN KEY (role_id) REFERENCES roles(id),
 
           CONSTRAINT pk_user_roles PRIMARY KEY (id)

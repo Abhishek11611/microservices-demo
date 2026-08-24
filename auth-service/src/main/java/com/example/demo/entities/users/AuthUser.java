@@ -8,8 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
-public class Users extends BaseEntity {
+@Table(name = "auth_user")
+public class AuthUser extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,13 +36,13 @@ public class Users extends BaseEntity {
     @Column(name = "date_of_birth",nullable = false)
     private LocalDate dateOfBirth;
 
-    @OneToMany(mappedBy = "users",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "authUser",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private List<UserRoles> userRoles = new LinkedList<>();
 
-    public Users() {
+    public AuthUser() {
     }
 
-    public Users(Long id, String userCode, String firstName, String lastName, String email, String passwordHash, String mobileNumber, LocalDate dateOfBirth, List<UserRoles> userRoles) {
+    public AuthUser(Long id, String userCode, String firstName, String lastName, String email, String passwordHash, String mobileNumber, LocalDate dateOfBirth, List<UserRoles> userRoles) {
         this.id = id;
         this.userCode = userCode;
         this.firstName = firstName;

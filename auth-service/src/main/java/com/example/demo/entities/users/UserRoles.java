@@ -13,7 +13,7 @@ public class UserRoles extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",nullable = false)
-    private Users users;
+    private AuthUser authUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id",nullable = false)
@@ -22,9 +22,9 @@ public class UserRoles extends BaseEntity {
     public UserRoles() {
     }
 
-    public UserRoles(Long id, Users users, Role role) {
+    public UserRoles(Long id, AuthUser authUser, Role role) {
         this.id = id;
-        this.users = users;
+        this.authUser = authUser;
         this.role = role;
     }
 
@@ -36,12 +36,12 @@ public class UserRoles extends BaseEntity {
         this.id = id;
     }
 
-    public Users getUsers() {
-        return users;
+    public AuthUser getAuthUser() {
+        return authUser;
     }
 
-    public void setUsers(Users users) {
-        this.users = users;
+    public void setAuthUser(AuthUser authUser) {
+        this.authUser = authUser;
     }
 
     public Role getRole() {
