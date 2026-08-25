@@ -14,6 +14,7 @@ public class GlobalExceptionHandler {
         System.out.println(e.getMessage());
         String message = e.getMessage();
         EmptyAPIResponse response = new EmptyAPIResponse(message, false);
+        e.printStackTrace();
         return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
     }
 
@@ -23,6 +24,7 @@ public class GlobalExceptionHandler {
         System.out.println(e.getMessage());
         String message = e.getMessage();
         EmptyAPIResponse response = new EmptyAPIResponse(message, false);
+        e.printStackTrace();
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }
 
@@ -31,6 +33,8 @@ public class GlobalExceptionHandler {
         System.out.println(e.getMessage());
         String message = e.getMessage();
         EmptyAPIResponse response = new EmptyAPIResponse(message, false);
+
+        e.printStackTrace();
         return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
     }
 }

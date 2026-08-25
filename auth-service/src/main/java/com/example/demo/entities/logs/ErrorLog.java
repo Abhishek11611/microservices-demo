@@ -1,7 +1,11 @@
 package com.example.demo.entities.logs;
 
+import com.example.demo.enums.AggregateType;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +19,15 @@ public class ErrorLog {
 
     @Column(name = "journey_id", length = 100)
     private String journeyId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "aggregate_type")
+    private AggregateType aggregateType;
+
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "request_payload", columnDefinition = "jsonb")
+    private JsonNode requestPayload;
 
     @Column(name = "error_type", length = 255)
     private String errorType;
@@ -32,14 +45,11 @@ public class ErrorLog {
     public ErrorLog() {
     }
 
-    public ErrorLog(
-            String journeyId,
-            String errorType,
-            String errorMessage,
-            String stackTrace,
-            LocalDateTime createdAt
-    ) {
+    public ErrorLog(Long id, String journeyId, AggregateType aggregateType, JsonNode requestPayload, String errorType, String errorMessage, String stackTrace, LocalDateTime createdAt) {
+        this.id = id;
         this.journeyId = journeyId;
+        this.aggregateType = aggregateType;
+        this.requestPayload = requestPayload;
         this.errorType = errorType;
         this.errorMessage = errorMessage;
         this.stackTrace = stackTrace;
@@ -90,4 +100,19 @@ public class ErrorLog {
         this.createdAt = createdAt;
     }
 
+    public AggregateType getAggregateType() {
+        return aggregateType;
+    }
+
+    public void setAggregateType(AggregateType aggregateType) {
+        this.aggregateType = aggregateType;
+    }
+
+    public JsonNode getRequestPayload() {
+        return requestPayload;
+    }
+
+    public void setRequestPayload(JsonNode requestPayload) {
+        this.requestPayload = requestPayload;
+    }
 }

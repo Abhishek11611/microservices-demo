@@ -15,6 +15,7 @@ public class AuthGlobalExceptionHandler {
         System.out.println(e.getMessage());
         String message = e.getMessage();
         EmptyAPIResponse response = new EmptyAPIResponse(message, false);
+        e.printStackTrace();
         return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

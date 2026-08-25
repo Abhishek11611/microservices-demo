@@ -4,18 +4,16 @@ import com.example.commoncore.exception.BadRequestException;
 import com.example.commoncore.exception.NotFoundException;
 import com.example.demo.dtos.registration.*;
 import com.example.demo.enums.RegistrationStatus;
-import com.example.demo.repositories.AuthUsersRepository;
+import com.example.demo.repositories.users.AuthUsersRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -149,7 +147,7 @@ public class UsersRegistrationServiceImpl implements UsersRegistrationService{
         registrationDTO.setPasswordHash(encodePassword);
         registrationDTO.setStatus(RegistrationStatus.PASSWORD_SET);
 
-        userRegistrationPersistenceService.saveAuthUserWithEvent(registrationDTO);
+        userRegistrationPersistenceService.register(registrationDTO);
 
 //        Long ttlExpire = redisTemplate.getExpire(REGISTRATION_KEY_PREFIX+registrationDTO.getJourneyId(), TimeUnit.SECONDS);
 //
