@@ -27,7 +27,7 @@ public class OutboxEventPublisher {
     }
 
 
-    public void publishPendingEvents(){
+    public void publishPendingEvents() {
 
         List<OutboxEvent> pendingEvents = outboxEventRepository.
                 findByStatusInAndPublishedAtIsNullAndRetryCountLessThanOrderByIdAsc(
@@ -35,48 +35,50 @@ public class OutboxEventPublisher {
 
 
         pendingEvents.forEach(event -> {
-            try {
-                event.setRetryCount(event.getRetryCount() + 1);
+                    try {
+                        event.setRetryCount(event.getRetryCount() + 1);
 
-                EventEnvelope eventEnvelope = new EventEnvelope(
+                        EventEnvelope eventEnvelope = new EventEnvelope(
                                 event.getEventId(),
                                 event.getEventType().name(),
                                 event.getEventKey(),
                                 event.getPayload()
-                );
+                        );
 
-                CompletableFuture<SendResult<String, String>> future = kafkaEventProducer.publish(
-                        "user-registration",
-                        event.getEventKey(),
-                        objectMapper.writeValueAsString(eventEnvelope)
-                );
+                        CompletableFuture<SendResult<String, String>> future = kafkaEventProducer.publish(
+                                "user-registration",
+                                event.getEventKey(),
+                                objectMapper.writeValueAsString(eventEnvelope)
+                        );
 
-                future.whenComplete((result, exception) -> {
+                        future.whenComplete((result, exception) -> {
 
-                    if (exception == null) {
+                            if (exception == null) {
 
-                        // Kafka acknowledgement received
+                                // Kafka acknowledgement received
+                                event.setStatus(OutboxEventStatus.PUBLISHED);
+                                event.setPublishedAt(LocalDateTime.now());
+
+                            } else {
+
+                                // Kafka publish failed
+                                event.setStatus(OutboxEventStatus.FAILED);
+
+                                // log exception
+                            }
+
+                        });
+
                         event.setStatus(OutboxEventStatus.PUBLISHED);
                         event.setPublishedAt(LocalDateTime.now());
-
-                    } else {
-
-                        // Kafka publish failed
+                    } catch (Exception e) {
                         event.setStatus(OutboxEventStatus.FAILED);
-
-                        // log exception
+                    } finally {
+                        outboxEventRepository.save(event);
                     }
-
-                event.setStatus(OutboxEventStatus.PUBLISHED);
-                event.setPublishedAt(LocalDateTime.now());
-            } catch (Exception e) {
-                event.setStatus(OutboxEventStatus.FAILED);
-            }
-            finally {
-                outboxEventRepository.save(event);
-            }
-
-        });
+                }
+        );
     }
+
 
 }
