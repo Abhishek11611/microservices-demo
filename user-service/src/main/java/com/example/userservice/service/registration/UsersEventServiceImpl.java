@@ -39,13 +39,14 @@ public class UsersEventServiceImpl implements UsersEventService{
     public void saveUsers(String json) throws JsonProcessingException {
         JsonNode jsonNode = objectMapper.readTree(json);
 
-        String userCode = jsonNode.get("userCode").asText();
-        String firstName = jsonNode.get("firstName").asText();
-        String lastName = jsonNode.get("lastName").asText();
-        String email = jsonNode.get("email").asText();
-        String passwordHash = jsonNode.get("passwordHash").asText();
-        String mobileNumber = jsonNode.get("mobileNumber").asText();
-        String dateOfBirth = jsonNode.get("dateOfBirth").asText();
+        JsonNode payload = jsonNode.get("payload");
+
+        String userCode = payload.get("userCode").asText();
+        String firstName = payload.get("firstName").asText();
+        String lastName = payload.get("lastName").asText();
+        String email = payload.get("email").asText();
+        String mobileNumber = payload.get("mobileNumber").asText();
+        String dateOfBirth = payload.get("dateOfBirth").asText();
 
         LocalDate dob = LocalDate.parse(dateOfBirth);
 
@@ -54,7 +55,6 @@ public class UsersEventServiceImpl implements UsersEventService{
         users.setFirstName(firstName);
         users.setLastName(lastName);
         users.setEmail(email);
-        users.setPasswordHash(passwordHash);
         users.setMobileNumber(mobileNumber);
         users.setDateOfBirth(dob);
 

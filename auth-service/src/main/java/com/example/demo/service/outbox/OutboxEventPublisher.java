@@ -4,17 +4,19 @@ import com.example.demo.dtos.events.EventEnvelope;
 import com.example.demo.entities.events.OutboxEvent;
 import com.example.demo.enums.OutboxEventStatus;
 import com.example.demo.repositories.events.OutboxEventRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.kafka.support.SendResult;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class OutboxEventPublisher {
+
+    private static final int BATCH_SIZE = 100;
+    private static final int MAX_RETRY_COUNT = 10;
 
     private final OutboxEventRepository outboxEventRepository;
     private final KafkaEventProducer kafkaEventProducer;
@@ -26,17 +28,16 @@ public class OutboxEventPublisher {
         this.objectMapper = objectMapper;
     }
 
-
+    @Scheduled(fixedDelay = 5000)
     public void publishPendingEvents() {
 
         List<OutboxEvent> pendingEvents = outboxEventRepository.
-                findByStatusInAndPublishedAtIsNullAndRetryCountLessThanOrderByIdAsc(
-                        List.of(OutboxEventStatus.PENDING, OutboxEventStatus.FAILED), 10);
+                claimPendingEvents(BATCH_SIZE, MAX_RETRY_COUNT);
 
 
-        pendingEvents.forEach(event -> {
+                for (OutboxEvent event : pendingEvents) {
+
                     try {
-                        event.setRetryCount(event.getRetryCount() + 1);
 
                         EventEnvelope eventEnvelope = new EventEnvelope(
                                 event.getEventId(),
@@ -45,40 +46,26 @@ public class OutboxEventPublisher {
                                 event.getPayload()
                         );
 
-                        CompletableFuture<SendResult<String, String>> future = kafkaEventProducer.publish(
+                        kafkaEventProducer.publish(
                                 "user-registration",
                                 event.getEventKey(),
                                 objectMapper.writeValueAsString(eventEnvelope)
-                        );
+                        ).get(10, TimeUnit.SECONDS);
 
-                        future.whenComplete((result, exception) -> {
-
-                            if (exception == null) {
-
-                                // Kafka acknowledgement received
-                                event.setStatus(OutboxEventStatus.PUBLISHED);
-                                event.setPublishedAt(LocalDateTime.now());
-
-                            } else {
-
-                                // Kafka publish failed
-                                event.setStatus(OutboxEventStatus.FAILED);
-
-                                // log exception
-                            }
-
-                        });
 
                         event.setStatus(OutboxEventStatus.PUBLISHED);
                         event.setPublishedAt(LocalDateTime.now());
-                    } catch (Exception e) {
-                        event.setStatus(OutboxEventStatus.FAILED);
-                    } finally {
+
                         outboxEventRepository.save(event);
+                    } catch (Exception ex) {
+
+                        event.setRetryCount(event.getRetryCount() + 1);
+                        event.setStatus(OutboxEventStatus.FAILED);
+                        outboxEventRepository.save(event);
+
                     }
                 }
-        );
-    }
+            }
 
 
 }

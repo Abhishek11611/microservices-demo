@@ -11,14 +11,12 @@ public class KafkaEventProducer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public KafkaEventProducer(
-            KafkaTemplate<String, String> kafkaTemplate
-    ) {
+    public KafkaEventProducer( KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
     public CompletableFuture<SendResult<String, String>> publish(String topic, String key, String payload) {
 
-        kafkaTemplate.send(topic, key, payload);
+       return kafkaTemplate.send(topic, key, payload);
     }
 }
