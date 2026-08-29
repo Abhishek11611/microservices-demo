@@ -2,6 +2,7 @@ package com.example.userservice.service.registration;
 
 import com.example.commoncore.exception.NotFoundException;
 import com.example.userservice.dtos.RegistrationDTO;
+import com.example.userservice.entities.events.UserEvents;
 import com.example.userservice.entities.users.Role;
 import com.example.userservice.entities.users.UserRoles;
 import com.example.userservice.entities.users.Users;
@@ -9,13 +10,18 @@ import com.example.userservice.enums.RegistrationStatus;
 import com.example.userservice.repositories.RolesRepository;
 import com.example.userservice.repositories.UserRolesRepository;
 import com.example.userservice.repositories.UsersRepository;
+import com.example.userservice.repositories.events.UserEventsRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UsersEventServiceImpl implements UsersEventService{
@@ -24,20 +30,35 @@ public class UsersEventServiceImpl implements UsersEventService{
     private final UsersRepository usersRepository;
     private final RolesRepository rolesRepository;
     private final UserRolesRepository userRolesRepository;
+    private final UserEventsRepository userEventsRepository;
 
-    public UsersEventServiceImpl(ObjectMapper objectMapper, UsersRepository usersRepository, RolesRepository rolesRepository, UserRolesRepository userRolesRepository) {
+    public UsersEventServiceImpl(ObjectMapper objectMapper, UsersRepository usersRepository, RolesRepository rolesRepository, UserRolesRepository userRolesRepository, UserEventsRepository userEventsRepository) {
         this.objectMapper = objectMapper;
         this.usersRepository = usersRepository;
         this.rolesRepository = rolesRepository;
         this.userRolesRepository = userRolesRepository;
+        this.userEventsRepository = userEventsRepository;
     }
 
     @KafkaListener(
             topics = "user-registration", groupId = "user-group1"
     )
+    @Transactional
     @Override
-    public void saveUsers(String json) throws JsonProcessingException {
+    public void saveUsers(String json, Acknowledgment acknowledgment) throws JsonProcessingException {
         JsonNode jsonNode = objectMapper.readTree(json);
+
+        String eventType = jsonNode.get("eventType").asText();
+        if (!"USER_REGISTERED".equals(eventType)){
+            return;
+        }
+
+        String eventId = jsonNode.get("eventId").asText();
+
+        // Ensure idempotency: skip already processed events
+        if(userEventsRepository.existsByEventId(eventId)){
+            return;
+        }
 
         JsonNode payload = jsonNode.get("payload");
 
@@ -47,6 +68,7 @@ public class UsersEventServiceImpl implements UsersEventService{
         String email = payload.get("email").asText();
         String mobileNumber = payload.get("mobileNumber").asText();
         String dateOfBirth = payload.get("dateOfBirth").asText();
+
 
         LocalDate dob = LocalDate.parse(dateOfBirth);
 
@@ -58,15 +80,38 @@ public class UsersEventServiceImpl implements UsersEventService{
         users.setMobileNumber(mobileNumber);
         users.setDateOfBirth(dob);
 
-        String roleName = "USER";
-        Role role = rolesRepository.findByName(roleName).orElseThrow(() -> new NotFoundException(roleName + " role not found"));
+        JsonNode rolesNode = payload.get("role");
 
-         UserRoles userRoles = new UserRoles();
-        userRoles.setRole(role);
-        userRoles.setUsers(users);
+        List<UserRoles> userRolesList = new ArrayList<>();
+        if (rolesNode!=null && rolesNode.isArray()){
 
-        users.getUserRoles().add(userRoles);
+            for (JsonNode node: rolesNode){
 
+                UserRoles userRoles = new UserRoles();
+
+                String roleName = node.asText();
+                 Role role =  rolesRepository.findByName(roleName)
+                         .orElseThrow(() -> new NotFoundException(roleName + " role not found"));
+
+                userRoles.setRole(role);
+                userRoles.setUsers(users);
+
+                userRolesList.add(userRoles);
+            }
+        }
+
+        users.setUserRoles(userRolesList);
         usersRepository.save(users);
+
+        UserEvents userEvents = new UserEvents();
+
+        userEvents.setEventId(eventId);
+        userEvents.setEventKey(jsonNode.get("eventKey").asText());
+        userEvents.setEventType(eventType);
+        userEvents.setRequestPayload(jsonNode);
+        userEventsRepository.save(userEvents);
+
+        acknowledgment.acknowledge();
+
     }
 }
