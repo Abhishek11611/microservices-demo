@@ -41,7 +41,8 @@ public class UsersEventServiceImpl implements UsersEventService{
     }
 
     @KafkaListener(
-            topics = "user-registration", groupId = "user-group1"
+            topics = "user-registration", groupId = "user-group1",
+            containerFactory = "kafkaListenerContainerFactory"
     )
     @Transactional
     @Override
@@ -57,6 +58,8 @@ public class UsersEventServiceImpl implements UsersEventService{
 
         // Ensure idempotency: skip already processed events
         if(userEventsRepository.existsByEventId(eventId)){
+          String eventKey =   jsonNode.get("eventKey").asText();
+            System.err.println("!!!Already Process = "+eventKey);
             return;
         }
 

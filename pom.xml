@@ -46,6 +46,7 @@
         <module>notification-service</module>
         <module>common-core</module>
         <module>service-discovery</module>
+        <module>product-service</module>
     </modules>
 
 </project>

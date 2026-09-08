@@ -36,21 +36,21 @@ public class AuthenticationController {
     }
 
     @PostMapping("/personal-details")
-    public ResponseEntity<BaseAPIResponse<RegistrationResponse>> registrationPersonalDetails(RegistrationPersonalDetailsRequest registrationPersonalDetailsRequest) {
+    public ResponseEntity<BaseAPIResponse<RegistrationResponse>> registrationPersonalDetails(@RequestBody RegistrationPersonalDetailsRequest registrationPersonalDetailsRequest) {
         RegistrationResponse registrationResponse = usersRegistrationService.registrationPersonalDetails(registrationPersonalDetailsRequest);
         BaseAPIResponse<RegistrationResponse> response = new BaseAPIResponse<>(registrationResponse,"Personal Information successfully",true);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<BaseAPIResponse<RegistrationResponse>> registrationVerifyOTP(RegistrationOTPRequest registrationOTPRequest) {
+    public ResponseEntity<BaseAPIResponse<RegistrationResponse>> registrationVerifyOTP(@RequestBody RegistrationOTPRequest registrationOTPRequest) {
         RegistrationResponse registrationResponse = usersRegistrationService.registrationVerifyOtp(registrationOTPRequest);
         BaseAPIResponse<RegistrationResponse> response = new BaseAPIResponse<>(registrationResponse,"verify OTP successfully",true);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/password")
-    public ResponseEntity<BaseAPIResponse<RegistrationResponse>> registrationPassword(PasswordRequest passwordRequest) throws JsonProcessingException {
+    public ResponseEntity<BaseAPIResponse<RegistrationResponse>> registrationPassword(@RequestBody PasswordRequest passwordRequest) throws JsonProcessingException {
         RegistrationResponse registrationResponse = usersRegistrationService.registrationPassword(passwordRequest);
         BaseAPIResponse<RegistrationResponse> response = new BaseAPIResponse<>(registrationResponse,"Password Created successfully",true);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
