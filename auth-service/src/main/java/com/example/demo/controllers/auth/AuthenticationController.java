@@ -2,6 +2,7 @@ package com.example.demo.controllers.auth;
 
 import com.example.commoncore.dto.BaseAPIResponse;
 import com.example.demo.dtos.authentication.TokenResponseDTO;
+import com.example.demo.dtos.authentication.VerifyOtpRequest;
 import com.example.demo.dtos.registration.PasswordRequest;
 import com.example.demo.dtos.registration.RegistrationOTPRequest;
 import com.example.demo.dtos.registration.RegistrationPersonalDetailsRequest;
@@ -29,8 +30,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/verify-users")
-    public ResponseEntity<BaseAPIResponse<TokenResponseDTO>> verifyOtp(@RequestParam String email, HttpServletRequest servletRequest) throws JOSEException {
-        TokenResponseDTO tokenResponseDTO = authenticationService.verifyUsers(email, servletRequest);
+    public ResponseEntity<BaseAPIResponse<TokenResponseDTO>> verifyOtp(@RequestParam VerifyOtpRequest verifyOtpRequest, HttpServletRequest servletRequest) throws JOSEException {
+        TokenResponseDTO tokenResponseDTO = authenticationService.verifyOTP(verifyOtpRequest, servletRequest);
         BaseAPIResponse<TokenResponseDTO> response = new BaseAPIResponse<>(tokenResponseDTO,"verified successfully",true);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

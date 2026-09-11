@@ -86,7 +86,7 @@ public class UsersRegistrationServiceImpl implements UsersRegistrationService{
 
         redisTemplate.opsForValue().set(REGISTRATION_KEY_PREFIX+journeyID,registrationDTO, REGISTRATION_TTL);
 
-        String generatedOTP = otpService.generateAndStore(journeyID);
+        otpService.sendOTP(journeyID);
 
         return new RegistrationResponse(journeyID,RegistrationStatus.PERSONAL_INFORMATION);
     }
@@ -108,11 +108,11 @@ public class UsersRegistrationServiceImpl implements UsersRegistrationService{
             throw new BadRequestException("Please complete your personal information before verifying your OTP.");
         }
 
-//        Boolean isOTPVerified = otpService.verifyOtp(registrationOTPRequest.journeyId(), registrationOTPRequest.otp());
-//
-//        if (!Boolean.TRUE.equals(isOTPVerified)) {
-//            throw new BadRequestException("The OTP you entered is invalid or has expired.");
-//        }
+        Boolean isOTPVerified = otpService.verifyOtp(registrationOTPRequest.journeyId(), registrationOTPRequest.otp());
+
+        if (!Boolean.TRUE.equals(isOTPVerified)) {
+            throw new BadRequestException("The OTP you entered is invalid or has expired.");
+        }
 
         registrationDTO.setStatus(RegistrationStatus.OTP_VERIFIED);
 

@@ -2,7 +2,7 @@ package com.example.demo.service.onboard;
 
 public interface OtpService {
 
-    String generateAndStore(String journeyId);
+    void sendOTP(String identifier);
 
-    Boolean verifyOtp(String journeyId, String requestOTP);
+    Boolean verifyOtp(String identifier, String requestOTP);
 }
