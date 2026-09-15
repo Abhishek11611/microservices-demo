@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Entity
@@ -114,5 +115,9 @@ public class RefreshToken {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public boolean shouldShuffleToken() {
+        return Duration.between(LocalDateTime.now(),createdAt).getSeconds() > 3.5 * 24 * 60 * 60;
     }
 }

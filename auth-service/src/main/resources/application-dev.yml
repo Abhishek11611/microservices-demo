@@ -30,6 +30,9 @@ security:
     access-token:
       ttl-minutes: 15
 
+    refresh-token:
+      ttl-days: 7
+
   data:
     redis:
       host: localhost

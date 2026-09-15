@@ -46,16 +46,18 @@ public class JwtService {
     @Value("${security.jwt.encryption.key-id}")
     private String ENC_KEY_ID;
     @Value("${security.jwt.access-token.ttl-minutes}")
-    private long ACCESS_TOKEN_TTL_MIN;
+    long ACCESS_TOKEN_TTL_MIN;
     @Value("${security.jwt.issuer}")
     private String issuer;
     @Value("${security.jwt.audience}")
     private String audience;
+    @Value("${security.jwt.refresh-token.ttl-days}")
+    long REFRESH_TOKEN_TTL_MIN;
 
-    public String generateAccessToken (String email, String roles){
+    public String generateAccessToken (String email, String roles, Long userId, String userCode){
 
         try {
-            JWTClaimsSet claims = buildClaims(email,roles);
+            JWTClaimsSet claims = buildClaims(email,roles,userId,userCode);
             SignedJWT signed  = signClaims(claims);
             System.out.println(signed.serialize()); // here we get Actual Token
             return encryptSignedJwt(signed);
@@ -65,13 +67,15 @@ public class JwtService {
     }
 
 
-    private JWTClaimsSet buildClaims(String email, String roles) {
+    private JWTClaimsSet buildClaims(String email, String roles, Long userId, String userCode) {
         Instant now = Instant.now();
 
         return new JWTClaimsSet.Builder()
                 .subject(email)
                 .claim("roles",roles)
                 .claim("type", "access")
+                .claim("userId",userId)
+                .claim("userCode",userCode)
                 .issuer(issuer)
                 .audience(audience)
                 .issueTime(Date.from(now))

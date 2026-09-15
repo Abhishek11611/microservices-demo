@@ -8,7 +8,6 @@ import com.example.demo.dtos.registration.RegistrationOTPRequest;
 import com.example.demo.dtos.registration.RegistrationPersonalDetailsRequest;
 import com.example.demo.dtos.registration.RegistrationResponse;
 import com.example.demo.service.onboard.UsersRegistrationService;
-import com.example.demo.service.onboard.UsersRegistrationServiceImpl;
 import com.example.demo.service.security.AuthenticationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.jose.JOSEException;
@@ -19,21 +18,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/registrations")
-public class AuthenticationController {
+public class RegistrationController {
 
-    private final AuthenticationService authenticationService;
     private final UsersRegistrationService usersRegistrationService;
 
-    public AuthenticationController(AuthenticationService authenticationService, UsersRegistrationService usersRegistrationService) {
-        this.authenticationService = authenticationService;
+    public RegistrationController(UsersRegistrationService usersRegistrationService) {
         this.usersRegistrationService = usersRegistrationService;
-    }
-
-    @PostMapping("/verify-users")
-    public ResponseEntity<BaseAPIResponse<TokenResponseDTO>> verifyOtp(@RequestParam VerifyOtpRequest verifyOtpRequest, HttpServletRequest servletRequest) throws JOSEException {
-        TokenResponseDTO tokenResponseDTO = authenticationService.verifyOTP(verifyOtpRequest, servletRequest);
-        BaseAPIResponse<TokenResponseDTO> response = new BaseAPIResponse<>(tokenResponseDTO,"verified successfully",true);
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/personal-details")
