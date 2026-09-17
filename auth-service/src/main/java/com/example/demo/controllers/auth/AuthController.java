@@ -4,6 +4,7 @@ import com.example.commoncore.dto.BaseAPIResponse;
 import com.example.demo.dtos.authentication.SendOTPDTO;
 import com.example.demo.dtos.authentication.TokenResponseDTO;
 import com.example.demo.dtos.authentication.VerifyOtpRequest;
+import com.example.demo.dtos.authentication.VerifyPasswordRequest;
 import com.example.demo.service.security.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +33,20 @@ public class AuthController {
     public ResponseEntity<BaseAPIResponse<TokenResponseDTO>> verifyOtp(@RequestBody VerifyOtpRequest verifyOtpRequest, HttpServletRequest servletRequest) throws JOSEException {
         TokenResponseDTO tokenResponseDTO = authenticationService.verifyOTP(verifyOtpRequest, servletRequest);
         BaseAPIResponse<TokenResponseDTO> response = new BaseAPIResponse<>(tokenResponseDTO,"verify OTP successfully",true);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/refresh-token")
+    public ResponseEntity<BaseAPIResponse<TokenResponseDTO>> refreshToken( HttpServletRequest servletRequest) throws JOSEException {
+        TokenResponseDTO tokenResponseDTO = authenticationService.refreshToken(servletRequest);
+        BaseAPIResponse<TokenResponseDTO> response = new BaseAPIResponse<>(tokenResponseDTO,"Token refreshed successfully",true);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/verify-password")
+    public ResponseEntity<BaseAPIResponse<TokenResponseDTO>> verifyPassword(@RequestBody VerifyPasswordRequest verifyPasswordRequest, HttpServletRequest servletRequest) throws JOSEException {
+        TokenResponseDTO tokenResponseDTO = authenticationService.verifyPassword(verifyPasswordRequest,servletRequest);
+        BaseAPIResponse<TokenResponseDTO> response = new BaseAPIResponse<>(tokenResponseDTO,"Password Verified successfully",true);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

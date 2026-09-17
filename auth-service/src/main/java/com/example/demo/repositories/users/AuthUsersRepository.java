@@ -16,4 +16,6 @@ public interface AuthUsersRepository extends JpaRepository<AuthUser,Long> {
     Optional<AuthUser> findByEmail(String recipient);
 
     Optional<AuthUser> findByMobileNumber(String recipient);
+
+
 }
