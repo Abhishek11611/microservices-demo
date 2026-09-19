@@ -4,6 +4,8 @@ import com.example.productservice.entities.BaseEntity;
 import com.example.productservice.entities.brand.Brands;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "products")
 public class Product extends BaseEntity {
@@ -21,23 +23,36 @@ public class Product extends BaseEntity {
     @Column(name = "slug", nullable = false, unique = true)
     private String slug;
 
-    @Column(name = "description")
+    @Column(name = "description",  columnDefinition = "TEXT")
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id",nullable = false)
     private Brands brands;
 
+    @OneToMany(mappedBy = "product")
+    private List<ProductMedia> productMedia;
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductVariant> productVariants;
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductCategory> productCategories;
+
+
     public Product() {
     }
 
-    public Product(Long id, String productCode, String name, String slug, String description, Brands brands) {
+    public Product(Long id, String productCode, String name, String slug, String description, Brands brands, List<ProductMedia> productMedia, List<ProductVariant> productVariants, List<ProductCategory> productCategories) {
         this.id = id;
         this.productCode = productCode;
         this.name = name;
         this.slug = slug;
         this.description = description;
         this.brands = brands;
+        this.productMedia = productMedia;
+        this.productVariants = productVariants;
+        this.productCategories = productCategories;
     }
 
     public Long getId() {
@@ -86,5 +101,29 @@ public class Product extends BaseEntity {
 
     public void setBrands(Brands brands) {
         this.brands = brands;
+    }
+
+    public List<ProductMedia> getProductMedia() {
+        return productMedia;
+    }
+
+    public void setProductMedia(List<ProductMedia> productMedia) {
+        this.productMedia = productMedia;
+    }
+
+    public List<ProductVariant> getProductVariants() {
+        return productVariants;
+    }
+
+    public void setProductVariants(List<ProductVariant> productVariants) {
+        this.productVariants = productVariants;
+    }
+
+    public List<ProductCategory> getProductCategories() {
+        return productCategories;
+    }
+
+    public void setProductCategories(List<ProductCategory> productCategories) {
+        this.productCategories = productCategories;
     }
 }
