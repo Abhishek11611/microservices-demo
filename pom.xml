@@ -47,6 +47,7 @@
         <module>common-core</module>
         <module>service-discovery</module>
         <module>product-service</module>
+        <module>api-gateway</module>
     </modules>
 
 </project>

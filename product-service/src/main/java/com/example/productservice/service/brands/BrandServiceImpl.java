@@ -4,7 +4,9 @@ import com.example.productservice.dtos.BrandsRequestDTO;
 import com.example.productservice.entities.brand.Brands;
 import com.example.productservice.exceptions.AlreadyExistsException;
 import com.example.productservice.repositories.brands.BrandRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
