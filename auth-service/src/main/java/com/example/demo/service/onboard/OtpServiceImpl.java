@@ -1,5 +1,6 @@
 package com.example.demo.service.onboard;
 
+import com.example.demo.exceptions.LimitExceededException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +40,7 @@ public class OtpServiceImpl implements OtpService{
         Boolean cooldownExists  = redisTemplate.hasKey(cooldownKey);
 
         if (Boolean.TRUE.equals(cooldownExists )){
-            throw new RuntimeException("Please wait 60s requesting another OTP");
+            throw new LimitExceededException("Please wait 60s requesting another OTP");
         }
 
         Long sendCount = redisTemplate.opsForValue().increment(sendCountKey);
@@ -49,7 +50,7 @@ public class OtpServiceImpl implements OtpService{
         }
 
         if (sendCount  !=null && sendCount  > MAX_SENDS){
-            throw new RuntimeException( "Maximum OTP requests exceeded");
+            throw new LimitExceededException( "Maximum OTP requests exceeded");
         }
 
         String otp = String.format("%06d", secureRandom.nextInt(1_000_000));
@@ -91,7 +92,7 @@ public class OtpServiceImpl implements OtpService{
         if (attempt != null && attempt > MAX_VERIFY_ATTEMPTS){
             redisTemplate.delete(key);
             redisTemplate.delete(verifyAttemptsKey);
-            throw new RuntimeException("Maximum OTP verification attempts exceeded");
+            throw new LimitExceededException("Maximum OTP verification attempts exceeded");
         }
 
         return false;

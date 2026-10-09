@@ -24,6 +24,9 @@ public class AttributeValue extends BaseEntity {
     @Column(name = "sort_order")
     private Integer sortOrder;
 
+    public AttributeValue() {
+    }
+
     public AttributeValue(Long id, Attribute attribute, String code, String value, Integer sortOrder) {
         this.id = id;
         this.attribute = attribute;
