@@ -57,12 +57,8 @@ public class BrandServiceImpl implements BrandService {
             throw new NotFoundException("Please Enter Brand Code");
         }
 
-        if (brandsUpdateRequestDTO.getBrandCode() != null &&
-                !brandRepository.existsByBrandCode(brandsUpdateRequestDTO.getBrandCode())){
-            throw new NotFoundException("Brand Code Not Found");
-        }
-
-        Brands brand = brandRepository.findByBrandCode(brandsUpdateRequestDTO.getBrandCode());
+          Brands brand = brandRepository.findByBrandCode(brandsUpdateRequestDTO.getBrandCode())
+                    .orElseThrow(() -> new NotFoundException("Brand Code Not Found"));
 
         brand.setName(brandsUpdateRequestDTO.getName());
         brand.setDescription(brandsUpdateRequestDTO.getDescription());

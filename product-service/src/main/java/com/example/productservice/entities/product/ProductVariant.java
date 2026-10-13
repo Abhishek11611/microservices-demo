@@ -1,7 +1,10 @@
 package com.example.productservice.entities.product;
 
 import com.example.productservice.entities.BaseEntity;
+import com.example.productservice.entities.attribute.VariantAttributeValue;
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "product_variants")
@@ -21,14 +24,21 @@ public class ProductVariant extends BaseEntity {
     @Column(name = "barcode")
     private String barcode;
 
+    @OneToMany(mappedBy = "variant")
+    private List<ProductMedia> productMedia;
+
+    @OneToMany(mappedBy = "productVariant", cascade = CascadeType.ALL)
+    private List<VariantAttributeValue> variantAttributeValues;
+
     public ProductVariant() {
     }
 
-    public ProductVariant(Long id, String sku, Product product, String barcode) {
+    public ProductVariant(Long id, String sku, Product product, String barcode, List<ProductMedia> productMedia) {
         this.id = id;
         this.sku = sku;
         this.product = product;
         this.barcode = barcode;
+        this.productMedia = productMedia;
     }
 
     public Long getId() {
@@ -61,5 +71,21 @@ public class ProductVariant extends BaseEntity {
 
     public void setBarcode(String barcode) {
         this.barcode = barcode;
+    }
+
+    public List<ProductMedia> getProductMedia() {
+        return productMedia;
+    }
+
+    public void setProductMedia(List<ProductMedia> productMedia) {
+        this.productMedia = productMedia;
+    }
+
+    public List<VariantAttributeValue> getVariantAttributeValues() {
+        return variantAttributeValues;
+    }
+
+    public void setVariantAttributeValues(List<VariantAttributeValue> variantAttributeValues) {
+        this.variantAttributeValues = variantAttributeValues;
     }
 }

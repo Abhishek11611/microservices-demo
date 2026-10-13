@@ -48,6 +48,14 @@ public class ProductMedia extends BaseEntity {
         this.isPrimary = isPrimary;
     }
 
+    public ProductMedia(String mediaType, String mediaUrl, String altText, Integer sortOrder, Boolean isPrimary) {
+        this.mediaType = mediaType;
+        this.mediaUrl = mediaUrl;
+        this.altText = altText;
+        this.sortOrder = sortOrder;
+        this.isPrimary = isPrimary;
+    }
+
     public Long getId() {
         return id;
     }

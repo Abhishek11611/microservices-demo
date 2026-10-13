@@ -6,6 +6,7 @@ import com.example.productservice.entities.brand.Brands;
 import com.example.productservice.service.brands.BrandService;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,14 +22,14 @@ public class BrandController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<BaseAPIResponse<String>> createBrand(@RequestBody BrandsRequestDTO brandsRequestDTO) {
+    public ResponseEntity<BaseAPIResponse<String>> createBrand(@Valid @RequestBody BrandsRequestDTO brandsRequestDTO) {
         String createdBrandResponse = brandService.createBrand(brandsRequestDTO);
         BaseAPIResponse<String> response = new BaseAPIResponse<>(createdBrandResponse,"Brand Created successfully",true);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/update")
-    public ResponseEntity<BaseAPIResponse<String>> updateBrand(@RequestBody BrandsUpdateRequestDTO brandsUpdateRequestDTO) {
+    public ResponseEntity<BaseAPIResponse<String>> updateBrand(@Valid @RequestBody BrandsUpdateRequestDTO brandsUpdateRequestDTO) {
         String updateBrandResponse = brandService.updateBrand(brandsUpdateRequestDTO);
         BaseAPIResponse<String> response = new BaseAPIResponse<>(updateBrandResponse,"Brand Updated successfully",true);
         return new ResponseEntity<>(response, HttpStatus.OK);

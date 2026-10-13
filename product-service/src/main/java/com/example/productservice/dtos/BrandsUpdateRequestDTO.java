@@ -1,9 +1,14 @@
 package com.example.productservice.dtos;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class BrandsUpdateRequestDTO {
 
+    @NotBlank(message = "brandCode is required")
     private String brandCode;
+    @NotBlank(message = "name is required")
     private String name;
+    @NotBlank(message = "slug is required")
     private String slug;
     private String description;
 
