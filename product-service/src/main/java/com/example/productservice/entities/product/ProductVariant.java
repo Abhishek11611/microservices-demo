@@ -24,7 +24,7 @@ public class ProductVariant extends BaseEntity {
     @Column(name = "barcode")
     private String barcode;
 
-    @OneToMany(mappedBy = "variant")
+    @OneToMany(mappedBy = "variant",cascade = CascadeType.ALL)
     private List<ProductMedia> productMedia;
 
     @OneToMany(mappedBy = "productVariant", cascade = CascadeType.ALL)

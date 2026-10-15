@@ -29,6 +29,10 @@ security:
     issuer: demo-service
     audience: product-clients
 
+logging:
+  level:
+    net.ttddyy.dsproxy: INFO
+
 #  kafka:
 #    bootstrap-servers: localhost:9092
 #

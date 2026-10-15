@@ -32,8 +32,7 @@ public class Category extends BaseEntity {
     @OneToMany(mappedBy = "category")
     private List<ProductCategory> productCategoryList;
 
-    public Category(Long id) {
-        this.id = id;
+    public Category() {
     }
 
     public Category(Long id, String categoryCode, String name, String slug, String description, Category parent, List<ProductCategory> productCategoryList) {
