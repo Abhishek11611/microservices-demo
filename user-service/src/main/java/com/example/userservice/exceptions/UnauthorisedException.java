@@ -1,4 +1,4 @@
-package com.example.commoncore.exception;
+package com.example.userservice.exceptions;
 
 public class UnauthorisedException extends RuntimeException {
     public UnauthorisedException(String message) {

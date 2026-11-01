@@ -1,6 +1,6 @@
 package com.example.demo.service.onboard;
 
-import com.example.commoncore.exception.NotFoundException;
+import com.example.demo.exceptions.NotFoundException;
 import com.example.demo.dtos.registration.RegistrationDTO;
 import com.example.demo.entities.users.AuthUser;
 import com.example.demo.entities.users.Role;

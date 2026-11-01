@@ -1,6 +1,6 @@
 package com.example.productservice.controllers.Attribute;
 
-import com.example.commoncore.dto.BaseAPIResponse;
+import com.example.productservice.dtos.BaseAPIResponse;
 import com.example.productservice.dtos.AttributeCreateRequestDTO;
 import com.example.productservice.dtos.AttributeResponseDTO;
 import com.example.productservice.dtos.BrandsRequestDTO;

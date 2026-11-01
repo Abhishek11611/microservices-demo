@@ -1,6 +1,6 @@
 package com.example.demo.controllers.auth;
 
-import com.example.commoncore.dto.BaseAPIResponse;
+import com.example.demo.dtos.BaseAPIResponse;
 import com.example.demo.dtos.authentication.TokenResponseDTO;
 import com.example.demo.dtos.authentication.VerifyOtpRequest;
 import com.example.demo.dtos.registration.PasswordRequest;

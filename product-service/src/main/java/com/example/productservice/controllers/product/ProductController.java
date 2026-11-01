@@ -1,6 +1,6 @@
 package com.example.productservice.controllers.product;
 
-import com.example.commoncore.dto.BaseAPIResponse;
+import com.example.productservice.dtos.BaseAPIResponse;
 import com.example.productservice.dtos.BrandsRequestDTO;
 import com.example.productservice.dtos.ProductRequestDTO;
 import com.example.productservice.service.product.ProductService;

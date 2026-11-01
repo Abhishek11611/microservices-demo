@@ -1,6 +1,6 @@
 package com.example.productservice.service.product;
 
-import com.example.commoncore.exception.NotFoundException;
+import com.example.productservice.exceptions.product.NotFoundException;
 import com.example.productservice.dtos.ProductAttributeRequestDTO;
 import com.example.productservice.dtos.ProductMediaRequestDTO;
 import com.example.productservice.dtos.ProductRequestDTO;

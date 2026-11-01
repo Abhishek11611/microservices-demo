@@ -1,6 +1,6 @@
 package com.example.demo.service.security;
 
-import com.example.commoncore.exception.UnauthorisedException;
+import com.example.demo.exceptions.UnauthorisedException;
 import com.example.demo.exceptions.TokenGenerationException;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSADecrypter;

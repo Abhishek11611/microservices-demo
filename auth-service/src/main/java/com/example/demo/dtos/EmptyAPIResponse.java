@@ -1,4 +1,4 @@
-package com.example.commoncore.dto;
+package com.example.demo.dtos;
 
 public class EmptyAPIResponse {
     protected String message;

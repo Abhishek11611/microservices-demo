@@ -1,6 +1,6 @@
 package com.example.productservice.security;
 
-import com.example.commoncore.exception.UnauthorisedException;
+import com.example.productservice.exceptions.UnauthorisedException;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.crypto.RSADecrypter;
 import com.nimbusds.jose.crypto.RSASSAVerifier;

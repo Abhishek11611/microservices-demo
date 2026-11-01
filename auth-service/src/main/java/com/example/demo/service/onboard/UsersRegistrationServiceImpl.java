@@ -1,7 +1,7 @@
 package com.example.demo.service.onboard;
 
-import com.example.commoncore.exception.BadRequestException;
-import com.example.commoncore.exception.NotFoundException;
+import com.example.demo.exceptions.BadRequestException;
+import com.example.demo.exceptions.NotFoundException;
 import com.example.demo.dtos.registration.*;
 import com.example.demo.enums.RegistrationStatus;
 import com.example.demo.repositories.users.AuthUsersRepository;

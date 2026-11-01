@@ -1,7 +1,7 @@
 package com.example.userservice.service.security;
 
-import com.example.commoncore.exception.BadRequestException;
-import com.example.commoncore.exception.UnauthorisedException;
+import com.example.userservice.exceptions.BadRequestException;
+import com.example.userservice.exceptions.UnauthorisedException;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.crypto.RSADecrypter;
 import com.nimbusds.jose.crypto.RSASSAVerifier;

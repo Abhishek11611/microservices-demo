@@ -1,6 +1,6 @@
 package com.example.userservice.service.registration;
 
-import com.example.commoncore.exception.NotFoundException;
+import com.example.userservice.exceptions.NotFoundException;
 import com.example.userservice.dtos.RegistrationDTO;
 import com.example.userservice.entities.events.UserEvents;
 import com.example.userservice.entities.users.Role;

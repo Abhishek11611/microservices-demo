@@ -1,8 +1,8 @@
 package com.example.demo.service.security;
 
-import com.example.commoncore.exception.BadRequestException;
-import com.example.commoncore.exception.NotFoundException;
-import com.example.commoncore.exception.UnauthorisedException;
+import com.example.demo.exceptions.BadRequestException;
+import com.example.demo.exceptions.NotFoundException;
+import com.example.demo.exceptions.UnauthorisedException;
 import com.example.demo.dtos.authentication.SendOTPDTO;
 import com.example.demo.dtos.authentication.TokenResponseDTO;
 import com.example.demo.dtos.authentication.VerifyOtpRequest;

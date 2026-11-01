@@ -1,6 +1,6 @@
 package com.example.productservice.controllers.brands;
 
-import com.example.commoncore.dto.BaseAPIResponse;
+import com.example.productservice.dtos.BaseAPIResponse;
 import com.example.productservice.dtos.*;
 import com.example.productservice.entities.brand.Brands;
 import com.example.productservice.service.brands.BrandService;
