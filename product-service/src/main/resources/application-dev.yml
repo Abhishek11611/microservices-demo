@@ -1,3 +1,4 @@
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/dev_product_db
@@ -10,6 +11,27 @@ spring:
       ddl-auto: validate
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+
+# Video training configuration
+training:
+  video:
+    upload-dir: C:/ecommerce-training/videos
+
+  audio:
+    output-dir: C:/ecommerce-training/audio
+
+  ffmpeg:
+    path: 'C:/Users/HP/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe/ffmpeg-9.0.2-full_build/bin/ffmpeg.exe'
+
+  whisper:
+    model-path: C:/whisper/models/ggml-base.en.bin
+    language: en
+    working-dir: C:/
 
 eureka:
   client:
@@ -33,19 +55,17 @@ logging:
   level:
     net.ttddyy.dsproxy: INFO
 
-#  kafka:
-#    bootstrap-servers: localhost:9092
+# Kafka (disabled)
+# spring:
+#   kafka:
+#     bootstrap-servers: localhost:9092
 #
-#    consumer:
-#      group-id: user-group1
-#      auto-offset-reset: earliest
-#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-#      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-#      enable-auto-commit: false
+#     consumer:
+#       group-id: user-group1
+#       auto-offset-reset: earliest
+#       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#       enable-auto-commit: false
 #
-#    listener:
-#      ack-mode: manual
-
-
-
-
+#     listener:
+#       ack-mode: manual
