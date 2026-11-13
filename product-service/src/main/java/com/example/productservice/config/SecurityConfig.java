@@ -51,9 +51,17 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain apiSecurityChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/api/v1/**","/api/v1/products/product/**")
+                .securityMatcher(
+                        "/api/v1/**",
+                        "/api/settings-cache",
+                        "/api/settings-cache/**"
+                )
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/api/settings-cache",
+                                "/api/settings-cache/**"
+                        ).authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
