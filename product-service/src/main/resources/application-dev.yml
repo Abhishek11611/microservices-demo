@@ -33,6 +33,28 @@ training:
     language: en
     working-dir: C:/
 
+#  This is With whisper-cli.exe   ggml-medium.bin
+transcription:
+  video:
+    upload-dir: C:/ecommerce-training/transcription/videos
+
+  audio:
+    output-dir: C:/ecommerce-training/transcription/audio
+
+  output:
+    dir: C:/ecommerce-training/transcription/results
+
+  ffmpeg:
+    executable: C:/Users/HP/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe/ffmpeg-9.0.2-full_build/bin/ffmpeg.exe
+
+  whisper:
+    executable: C:/whisper/whisper.cpp/build/bin/Release/whisper-cli.exe
+    model-path: C:/whisper/models/ggml-medium.bin
+    language: auto
+    translate: true
+    threads: 8
+    beam-size: 5
+
 eureka:
   client:
     service-url:
