@@ -135,6 +135,27 @@
             <version>1.10.1</version>
         </dependency>
 
+        <!--  quadrant-->
+        <dependency>
+            <groupId>io.qdrant</groupId>
+            <artifactId>client</artifactId>
+            <version>1.19.0</version>
+        </dependency>
+
+     <!--  microsoft onnxruntime-->
+        <dependency>
+            <groupId>com.microsoft.onnxruntime</groupId>
+            <artifactId>onnxruntime</artifactId>
+            <version>1.30.0</version>
+        </dependency>
+
+     <!--  tokenizers-->
+        <dependency>
+            <groupId>ai.djl.huggingface</groupId>
+            <artifactId>tokenizers</artifactId>
+            <version>0.39.0</version>
+        </dependency>
+
 
     </dependencies>
 

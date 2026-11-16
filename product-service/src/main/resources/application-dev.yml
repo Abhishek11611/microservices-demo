@@ -55,6 +55,20 @@ transcription:
     threads: 8
     beam-size: 5
 
+qdrant:
+  host: localhost
+  grpc-port: 6334
+  collection-name: training_video_embeddings
+  vector-size: 1024
+
+bge:
+  model:
+    directory: C:/ecommerce-training/models/bge-m3
+    onnx-file: model.onnx
+    tokenizer-file: tokenizer.json
+    dimension: 1024
+    max-length: 512
+
 eureka:
   client:
     service-url:
