@@ -69,6 +69,13 @@ bge:
     dimension: 1024
     max-length: 512
 
+ollama:
+  base-url: http://localhost:11434
+  model: qwen3.5:4b
+  context-size: 4096
+  temperature: 0.2
+  max-output-tokens: 500
+
 eureka:
   client:
     service-url:
