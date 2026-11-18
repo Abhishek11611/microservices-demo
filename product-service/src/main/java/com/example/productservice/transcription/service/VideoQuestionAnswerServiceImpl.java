@@ -10,12 +10,7 @@ import io.qdrant.client.grpc.JsonWithInt.Value;
 
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class VideoQuestionAnswerServiceImpl
@@ -145,7 +140,9 @@ public class VideoQuestionAnswerServiceImpl
             contexts.add(context);
         }
 
-        // Step 4: Merge contexts and generate answers
+
+       // Step 4: Generate answer and collect relevant timestamps
+
         for (Map.Entry<String, Map<String, Object>> entry :
                 videoContexts.entrySet()) {
 
@@ -161,16 +158,12 @@ public class VideoQuestionAnswerServiceImpl
                 continue;
             }
 
-            StringBuilder combinedContext =
-                    new StringBuilder();
+            StringBuilder combinedContext = new StringBuilder();
 
-            Set<String> uniqueTexts =
-                    new LinkedHashSet<>();
+            Set<String> uniqueTexts = new LinkedHashSet<>();
 
-            double startSeconds = Double.MAX_VALUE;
-            double endSeconds = 0;
-
-            int totalSegments = 0;
+            List<Map<String, Object>> relevantTimestamps =
+                    new ArrayList<>();
 
             for (Map<String, Object> context : contexts) {
 
@@ -186,63 +179,63 @@ public class VideoQuestionAnswerServiceImpl
                             .append("\n");
                 }
 
-                double contextStart =
+                double startSeconds =
                         ((Number) context.get("startSeconds"))
                                 .doubleValue();
 
-                double contextEnd =
+                double endSeconds =
                         ((Number) context.get("endSeconds"))
                                 .doubleValue();
 
-                startSeconds =
-                        Math.min(startSeconds, contextStart);
+                Map<String, Object> timestamp =
+                        new LinkedHashMap<>();
 
-                endSeconds =
-                        Math.max(endSeconds, contextEnd);
+                timestamp.put("startSeconds", startSeconds);
+                timestamp.put("endSeconds", endSeconds);
 
-                Object segmentCount =
-                        context.get("totalSegments");
-
-                if (segmentCount instanceof Number) {
-                    totalSegments +=
-                            ((Number) segmentCount).intValue();
-                }
+                relevantTimestamps.add(timestamp);
             }
 
             if (combinedContext.isEmpty()) {
                 continue;
             }
 
-            // Generate answer using combined transcript
+            // Generate answer
             String answer =
                     ollamaService.generateAnswer(
                             question,
                             combinedContext.toString()
                     );
 
-            double duration = endSeconds - startSeconds;
+            // Merge overlapping timestamp ranges
+            List<Map<String, Object>> mergedTimestamps =
+                    mergeTimestamps(relevantTimestamps);
 
-            // Build timestamp response
-            Map<String, Object> timestamp =
-                    new LinkedHashMap<>();
+            // Build final timestamp response
+            List<Map<String, Object>> formattedTimestamps =
+                    new ArrayList<>();
 
-            timestamp.put(
-                    "start",
-                    formatTime(startSeconds)
-            );
+            for (Map<String, Object> timestamp : mergedTimestamps) {
 
-            timestamp.put(
-                    "end",
-                    formatTime(endSeconds)
-            );
+                double startSeconds =
+                        ((Number) timestamp.get("startSeconds"))
+                                .doubleValue();
 
-            timestamp.put(
-                    "duration",
-                    formatDuration(duration)
-            );
+                double endSeconds =
+                        ((Number) timestamp.get("endSeconds"))
+                                .doubleValue();
 
-            timestamp.put("startSeconds", startSeconds);
-            timestamp.put("endSeconds", endSeconds);
+                Map<String, Object> formatted =
+                        new LinkedHashMap<>();
+
+                formatted.put("start", formatTime(startSeconds));
+                formatted.put("end", formatTime(endSeconds));
+
+                formatted.put("startSeconds", startSeconds);
+                formatted.put("endSeconds", endSeconds);
+
+                formattedTimestamps.add(formatted);
+            }
 
             Map<String, Object> videoResult =
                     new LinkedHashMap<>();
@@ -255,12 +248,19 @@ public class VideoQuestionAnswerServiceImpl
                     videoData.get("similarityScore")
             );
 
-            videoResult.put("timestamp", timestamp);
+            videoResult.put(
+                    "relevantTimestamps",
+                    formattedTimestamps
+            );
 
-            videoResult.put("totalSegments", totalSegments);
+            videoResult.put(
+                    "totalSegments",
+                    uniqueTexts.size()
+            );
 
             videoAnswers.add(videoResult);
         }
+
 
         // Step 5: Final response
         Map<String, Object> response =
@@ -304,4 +304,78 @@ public class VideoQuestionAnswerServiceImpl
                 remainingSeconds
         );
     }
+
+
+    private List<Map<String, Object>> mergeTimestamps(
+            List<Map<String, Object>> timestamps) {
+
+        List<Map<String, Object>> sorted =
+                new ArrayList<>(timestamps);
+
+        // Sort by start time
+        Collections.sort(
+                sorted,
+                Comparator.comparingDouble(
+                        timestamp ->
+                                ((Number) timestamp.get("startSeconds"))
+                                        .doubleValue()
+                )
+        );
+
+        List<Map<String, Object>> merged =
+                new ArrayList<>();
+
+        for (Map<String, Object> current : sorted) {
+
+            double currentStart =
+                    ((Number) current.get("startSeconds"))
+                            .doubleValue();
+
+            double currentEnd =
+                    ((Number) current.get("endSeconds"))
+                            .doubleValue();
+
+            if (merged.isEmpty()) {
+
+                Map<String, Object> first =
+                        new LinkedHashMap<>();
+
+                first.put("startSeconds", currentStart);
+                first.put("endSeconds", currentEnd);
+
+                merged.add(first);
+
+                continue;
+            }
+
+            Map<String, Object> previous =
+                    merged.get(merged.size() - 1);
+
+            double previousEnd =
+                    ((Number) previous.get("endSeconds"))
+                            .doubleValue();
+
+            // Merge only overlapping ranges
+            if (currentStart <= previousEnd) {
+
+                previous.put(
+                        "endSeconds",
+                        Math.max(previousEnd, currentEnd)
+                );
+
+            } else {
+
+                Map<String, Object> next =
+                        new LinkedHashMap<>();
+
+                next.put("startSeconds", currentStart);
+                next.put("endSeconds", currentEnd);
+
+                merged.add(next);
+            }
+        }
+
+        return merged;
+    }
+
 }
